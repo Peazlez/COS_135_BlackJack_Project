@@ -13,7 +13,7 @@ typedef struct Player{
     int chipCount;
     int handTotal;
     int winTotal;
-};
+}Player;
 
 //create Player function
 Player* createPlayer(char *name, int chipCount, int handTotal, int winTotal);
@@ -23,6 +23,10 @@ void changeChips();
 
 // Free player when info has been saved and they lose all chips
 void freePlayer();
+
+// player info printing function
+void printPlayer(Player *p);
+    
 
 
 #endif

@@ -8,7 +8,7 @@
 typedef struct Table{
     int max_players;
     struct Player** players;
-};
+}Table;
 
 /* Maybe a Card struct if array of ints wont work for card values? */
 /* Also, How will I make the Ace work to be both 10 and 1? */
