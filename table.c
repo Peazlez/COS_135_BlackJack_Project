@@ -56,8 +56,15 @@ int drawCard(int cards[]){
     return -1;
 }
 
-int *shuffleDeck(int cards[]){
+int *resetDeck(int cards[]){
+    free(cards);
 
+    int* newDeck = createDeck();
+    if(newDeck == NULL){
+        printf("New Deck Allocation Failed\n");
+        return NULL;
+    }
+    return newDeck;
 }
 
 void freeTable(Table *aTable){

@@ -2,7 +2,6 @@
 #ifndef TABLE_H 
 #define TABLE_H
 
-#include <stdbool.h>
 #include <player.h>
 
 #define START_CHIPS 500
@@ -25,6 +24,9 @@ int *createDeck();
 
 //draws card from 52 int value array
 int drawCard(int cards[]);
+
+// "shuffle" deck (frees old deck and creates new one)
+int *resetDeck(int cards[]);
 
 //Free table at the end of the program
 void freeTable(Table *aTable);
