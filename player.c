@@ -1,9 +1,13 @@
 
 #include "player.h"
 
-struct Player* createPlayer(char *name, int chipCount, int handTotal, int winTotal){
+Player* createPlayer(const char *name){
     //player pointer
     Player *p = malloc(sizeof(Player));
+    if(p == NULL){ 
+        printf("Memory allocation failed\n");
+        return NULL;
+    }
     // copy name into Player
     strncpy(p->name, name, MAX_NAME_LENGTH-1);
     // initial chip count
@@ -20,10 +24,10 @@ void changeChips(Player *p, int change){
     p->chipCount += change;
 }
 
-void freePlayer(Player *player){
-    free(player);
+void freePlayer(Player *p){
+    free(p);
 }
 
 void printPlayer(Player *p){
-    printf("Name: %s \nChips: %d \n Hand: %d \n Wins: %d", p->name,p->chipCount,p->handTotal,p->winTotal);
+    printf("Name: %s \nChips: %d \n Hand: %d \n Wins: %d\n", p->name,p->chipCount,p->handTotal,p->winTotal);
 }

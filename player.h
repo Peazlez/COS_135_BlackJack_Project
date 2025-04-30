@@ -16,13 +16,13 @@ typedef struct Player{
 }Player;
 
 //create Player function
-Player* createPlayer(char *name, int chipCount, int handTotal, int winTotal);
+Player* createPlayer(const char *name);
 
 // adds or subtracts chips based on this hand's win or loss
-void changeChips();
+void changeChips(Player *p, int change);
 
 // Free player when info has been saved and they lose all chips
-void freePlayer();
+void freePlayer(Player *p);
 
 // player info printing function
 void printPlayer(Player *p);

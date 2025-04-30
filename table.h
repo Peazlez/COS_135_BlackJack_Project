@@ -2,12 +2,15 @@
 #ifndef TABLE_H 
 #define TABLE_H
 
+#include <stdbool.h>
+#include <player.h>
+
 #define START_CHIPS 500
 #define MAX_PLAYERS 4
 
 typedef struct Table{
-    int max_players;
-    struct Player** players;
+    int numPlayers;
+    struct Player** players; 
 }Table;
 
 /* Maybe a Card struct if array of ints wont work for card values? */
@@ -15,16 +18,15 @@ typedef struct Table{
 /* check to see if adding 10 would bust?  How to check on next draw?*/
 
 //Create table (add parameters)
-Table* createTable();
+Table* createTable(int counter);
 
-// Create deck of 52 cards
-void createDeck();
+// Create deck of 52 cards (return array or structs array?)
+int *createDeck();
 
 //draws card from 52 int value array
-int drawCard();
+int drawCard(int cards[]);
 
 //Free table at the end of the program
-void freeTable();
-
+void freeTable(Table *aTable);
 
 #endif
