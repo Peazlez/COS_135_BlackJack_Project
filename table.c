@@ -3,14 +3,15 @@
 
 // add player structs into parameters? 
 /*counter for number of players*/
-Table* createTable(int counter){
+Table* createTable(int count){
     Table *game = malloc(sizeof(Table));
     if(game == NULL){
         printf("Table Memory Allocation Failed\n");
         return NULL;
     }
-    game->numPlayers = counter;
-    game->players = malloc(sizeof(Player*) * counter);
+    game->numPlayers = count;
+    game->players = malloc(sizeof(Player*) * count);
+    game->dealerHand = 0;
     return game;
 }
 

@@ -11,6 +11,7 @@
 typedef struct Player{
     char name[MAX_NAME_LENGTH];
     int chipCount;
+    int bet;
     int handTotal;
     int winTotal;
 }Player;
@@ -25,7 +26,7 @@ void changeChips(Player *p, int change);
 void freePlayer(Player *p);
 
 // player info printing function
-void printPlayer(Player *p);
+void printPlayer(const Player *p);
     
 
 
