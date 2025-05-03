@@ -2,7 +2,7 @@
 #include "table.h"
 
 // add player structs into parameters? 
-/* counter for number of players*/
+/*counter for number of players*/
 Table* createTable(int counter){
     Table *game = malloc(sizeof(Table));
     if(game == NULL){

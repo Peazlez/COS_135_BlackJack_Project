@@ -2,6 +2,8 @@
 #include <table.h>
 
 //dealer behavior?
+//string concatanate function for color texts
+//function to check for aces and calculate hand total
 
 int main(){
     char buffer[256];
