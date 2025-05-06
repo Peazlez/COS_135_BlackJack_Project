@@ -17,6 +17,7 @@ Player* createPlayer(const char *name){
     //hand total and win total initialized at 0 for now
     p->handTotal = 0;
     p->winTotal = 0;
+    p->aceCount = 0;
 
     //return player pointer
     return p;

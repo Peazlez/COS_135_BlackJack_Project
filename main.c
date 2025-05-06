@@ -1,5 +1,6 @@
-#include <player.h>
-#include <table.h>
+#include "player.h"
+#include "table.h"
+#include <stdbool.h>
 
 //dealer behavior?
 //string concatanate function for color texts
@@ -65,19 +66,26 @@ int main(){
         free(newStr);
     }
 
+    // create game deck
+    int *Deck = createDeck();
+
     while(game->numPlayers > 0){
         //zero all hand totals
         game->dealerHand = 0;
         game->secondCard = 0;
-        for(int i = 0; i < game->numPlayers ; i++){
-            game->players[i]->handTotal=0;
+        game->dealerAces = 0;
+
+        for(int i = 0 ; i < game->numPlayers ; i++){
+            //skip past cashed out players
+            if(game->players[i] ==NULL) continue;
+            //reset player hands and ace totals
+            game->players[i]->handTotal = 0;
+            game->players[i]->aceCount = 0;
         }
 
-        // create game deck for current hand
-        int *Deck = createDeck();
-
-        //placing bets from each player  *****add cash out here?*****
+        //placing bets from each player
         for(int i = 0 ; i < game->numPlayers ; i++){
+            if(game->players[i] ==NULL) continue;
             printf("Bet for this hand, %s? \n", game->players[i]->name);
             char *inputBet = playerInput();
             //check if player has enough chips for bet
@@ -92,51 +100,161 @@ int main(){
         }
 
         //draw first card for dealer
-        game->dealerHand += drawCard(Deck);
+        int dealerCard = drawCard(Deck);
+        game->dealerHand += dealerCard;
+        if(dealerCard == 11) game->dealerAces++;
         //draw second card for dealer but hidden till later
-        game->secondCard += drawCard(Deck);
+        dealerCard = drawCard(Deck);
+        game->secondCard += dealerCard;
+        if(dealerCard == 11) game->dealerAces++;
 
         //outer loop twice for each card draw (2 cards per player)
         for(int i = 0 ; i < 2 ; i++){
             //card draw for each player
             for(int k = 0 ; k < game->numPlayers ; k++){
-                game->players[k]->handTotal += drawCard(Deck);
+                if(game->players[k] ==NULL) continue;
+                int newCard = drawCard(Deck);
+
+                //handle aces
+                if (newCard == 11){
+                    game->players[k]->aceCount++;
+                }
+                game->players[k]->handTotal += newCard;
+
+                // Drop ace to "1" if handtotal exceeds 21
+                while(game->players[k]->handTotal > 21 && game->players[k]->aceCount > 0){
+                    game->players[k]->handTotal -=10;
+                    game->players[k]->aceCount--;
+                }
+            }
+        }
+
+        for(int i = 0 ; i < game->numPlayers ; i++){
+            if(game->players[i] ==NULL) continue;
+            bool inGame = true;
+            while(inGame == true){
+                printf("Your current hand is: %d \n", game->players[i]->handTotal);
+                if(game->players[i]->handTotal > 21){
+                    printf("BUST!\n");
+                    inGame = false;
+                }
+                printf(" 1: Hit\n 2: Stand\n ");
+                int choice = atoi(playerInput());
+                if(choice != 1 && choice != 2){
+                    printf("Invalid input.  Please enter 1 (Hit) or 2 (Stand).\n");
+                    continue;
+                }
+                switch(choice){
+                    case 1:
+                        int newCard = drawCard(Deck);
+                        //handle aces
+                        if (newCard == 11){
+                            game->players[i]->aceCount++;
+                        }
+
+                        game->players[i]->handTotal += newCard;
+
+                        while(game->players[i]->handTotal > 21 && game->players[i]->aceCount > 0){
+                            game->players[i]->handTotal -=10;
+                            game->players[i]->aceCount--;
+                        }
+                        break;
+                    case 2:
+                        inGame = false;
+                        break;
+                }
             }
         }
 
         //reveal second card from dealer
+        printf("Dealer Hand: %d\n", game->dealerHand);
         game->dealerHand += game->secondCard;
+        printf("After Card Flip: %d\n", game->dealerHand);
         //guidelines for dealer behavior
-        switch(game->dealerHand){
-            case 0: 
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-            case 16:
-                game->dealerHand += drawCard(Deck);
-                break;
-            case 17:
-            case 18:
-            case 19:
-            case 20:
-            case 21:
-
+        bool dealerDraw = true;
+        while(dealerDraw == true){
+            switch(game->dealerHand){
+                case 0: 
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                case 11:
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                    dealerCard = drawCard(Deck);
+                    if(dealerCard == 11){
+                        game->dealerAces++;
+                    }
+                    game->dealerHand += dealerCard;
+                    while(game->dealerHand > 21 && game->dealerAces > 0){
+                        game->dealerHand -=10;
+                        game->dealerAces --;
+                    }
+                    printf("Dealer Hand: %d\n", game->dealerHand);
+                    break;
+                case 17:
+                case 18:
+                case 19:
+                case 20:
+                case 21:
+                printf("Dealer Hand: %d\n", game->dealerHand);
+                    dealerDraw = false;
+                    break;
+            }
         }
 
-        
+        for(int i = 0 ; i < game->numPlayers ; i++){
+            if(game->players[i] ==NULL) continue;
+            if(game->players[i]->handTotal > game->dealerHand || game->dealerHand > 21){
+                printf("%s, You won this hand!\n", game->players[i]->name);
+                game->players[i]->chipCount += game->players[i]->bet;
+                game->players[i]->handTotal = 0;
+                game->players[i]->bet = 0;
+                game->players[i]->winTotal +=1;
+            }
+            else if(game->players[i]->handTotal == game->dealerHand){
+                printf("%s, you tied!\n", game->players[i]->name);
+                game->players[i]->handTotal = 0;
+                game->players[i]->bet = 0;
+            }
+            else{
+                printf("%s, You lost this hand!\n", game->players[i]->name);
+                game->players[i]->chipCount -= game->players[i]->bet;
+                game->players[i]->handTotal = 0;
+                game->players[i]->bet = 0;
+            }
+        }
 
+        for(int i = 0 ; i < game->numPlayers ; i++){
+            if(game->players[i] == NULL) continue;
+            if(game->players[i]->chipCount <= 0){
+                printf("%s Lost all chips\nGAME OVER\n",game->players[i]->name);
+                game->numPlayers -= 1;
+                freePlayer(game->players[i]);
+                game->players[i] = NULL;
+            }
+        }
+        printf("Shuffling and resetting deck....\n");
+        Deck = resetDeck(Deck);
 
     }
+    //double check that players have been freed
+    for(int i = 0 ; i < 4 ; i++){
+        if(game->players[i] != NULL){
+            freePlayer(game->players[i]);
+        }
+    }
+
+    free(Deck);
+    free(game);
 }

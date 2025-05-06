@@ -12,6 +12,7 @@ typedef struct Table{
     Player** players;
     int dealerHand;
     int secondCard; 
+    int dealerAces;
 }Table;
 
 /* Maybe a Card struct if array of ints wont work for card values? */

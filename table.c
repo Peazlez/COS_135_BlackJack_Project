@@ -12,6 +12,7 @@ Table* createTable(int count){
     game->numPlayers = count;
     game->players = malloc(sizeof(Player*) * count);
     game->dealerHand = 0;
+    game->dealerAces = 0;
     return game;
 }
 
