@@ -34,3 +34,22 @@ void freePlayer(Player *p){
 void printPlayer(const Player *p){
     printf("Name: %s \nChips: %d \n Hand: %d \n Wins: %d\n", p->name,p->chipCount,p->handTotal,p->winTotal);
 }
+
+void savePlayerInfo(Player *p){
+        //open file to write, have pointer look at file
+        FILE *fp = fopen("Scores.txt","a");
+
+        // Can't find file
+        if (fp == NULL){
+            printf("Could not open file");
+            exit(1);
+        }
+    
+        // make a buffer to hold info
+        char buffer[1024];
+
+        //write to Scores File
+        fprintf(fp , "Name: %s \nChips: %d \n Hand: %d \n Wins: %d\n\n", p->name,p->chipCount,p->handTotal,p->winTotal);
+        //close file
+        fclose(fp);
+}

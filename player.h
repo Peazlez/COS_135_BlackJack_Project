@@ -5,7 +5,6 @@
 #define MAX_NAME_LENGTH 100
 
 //colors for text prints
-#define BLK "\e[0;30m"
 #define RED "\e[0;31m"
 #define GRN "\e[0;32m"
 #define YEL "\e[0;33m"
@@ -35,6 +34,8 @@ void freePlayer(Player *p);
 
 // player info printing function
 void printPlayer(const Player *p);
+
+void savePlayerInfo(Player *p);
     
 
 

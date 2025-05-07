@@ -59,7 +59,9 @@ int drawCard(int cards[]){
 }
 
 int *resetDeck(int cards[]){
-    free(cards);
+    if (cards != NULL){
+        free(cards);
+    }
 
     int* newDeck = createDeck();
     if(newDeck == NULL){
