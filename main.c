@@ -32,6 +32,11 @@ char* playerInput(){
 }
 
 int main(){
+    //create text file (wipe existing file)
+    FILE *fp = fopen("Scores.txt","w");
+    fprintf(fp, "Game Scores \n\n");
+    fclose(fp);
+
     printf("Welcome to the Blackjack Table, how many players?  This table can seat up to 4.\n");
     char *numPlayers = playerInput();
     int count = atoi(numPlayers);
@@ -42,11 +47,8 @@ int main(){
         return 1;
     }
 
-    //create text file (wipe existing file)
-    FILE *fp = fopen("Scores.txt","w");
-    fprintf(fp, "Game Scores \n\n");
-
-    fclose(fp);
+    //array for player color text
+    const char *colorArray[4] = {RED, BLU, GRN, YEL};
 
     //create game table
     Table *game = createTable(count);
@@ -56,8 +58,8 @@ int main(){
         printf("Player name?\n");
         //use playerInput function for trimming and fgets
         char *newStr = playerInput();
-        //create player
-        Player *p = createPlayer(newStr);
+        //create player, set color for individual player
+        Player *p = createPlayer(newStr, colorArray[i]);
 
         //check for player allocation
         if(p == NULL){
@@ -74,8 +76,9 @@ int main(){
 
     // create game deck
     int *Deck = createDeck();
+    int activePlayers = game->numPlayers;
 
-    while(game->numPlayers > 0){
+    while(activePlayers > 0){
         //zero all hand totals
         game->dealerHand = 0;
         game->secondCard = 0;
@@ -93,19 +96,18 @@ int main(){
         for(int i = 0 ; i < game->numPlayers ; i++){
             if(game->players[i] ==NULL) continue;
             while(true){
-                printf("Bet for this hand, %s? \n", game->players[i]->name);
+                printf("Bet for this hand, %s%s%s? \n",game->players[i]->textColor, game->players[i]->name, RESET);
                 char *inputBet = playerInput();
                 int bet = atoi(inputBet);
                 free(inputBet);
 
                 //check if bet is larger than 0
                 if(bet <= 0){
-                    printf("Bet must be greater than 0.\n");
+                    printf("%sBet must be greater than 0.%s\n", game->players[i]->textColor, RESET);
                 }
-
                 //check if player has enough chips for bet
                 else if(game->players[i]->chipCount < bet){
-                    printf("Not enough Chips, you have: %d Chips left\n", game->players[i]->chipCount);
+                    printf("Not enough Chips, you have: %s%d%s Chips left\n",game->players[i]->textColor, game->players[i]->chipCount, RESET);
                 }
                 else{
                     //set bet into player struct
@@ -147,20 +149,21 @@ int main(){
         }
 
         for(int i = 0 ; i < game->numPlayers ; i++){
-            if(game->players[i] ==NULL) continue;
+            if(game->players[i] == NULL) continue;
             bool inGame = true;
             while(inGame == true){
-                printf("Your current hand is: %d \n", game->players[i]->handTotal);
+                printf("%sYour current hand is: %d%s \n",game->players[i]->textColor, game->players[i]->handTotal, RESET);
                 if(game->players[i]->handTotal > 21){
                     printf("BUST!\n");
                     inGame = false;
+                    break;
                 }
                 printf(" 1: Hit\n 2: Stand\n ");
                 char *response = playerInput();
                 int choice = atoi(response);
                 free(response);
                 if(choice != 1 && choice != 2){
-                    printf("Invalid input.  Please enter 1 (Hit) or 2 (Stand).\n");
+                    printf("%sInvalid input.  Please enter 1 (Hit) or 2 (Stand).%s\n",game->players[i]->textColor, RESET);
                     continue;
                 }
                 switch(choice){
@@ -235,19 +238,19 @@ int main(){
         for(int i = 0 ; i < game->numPlayers ; i++){
             if(game->players[i] == NULL) continue;
             if(game->players[i]->handTotal > game->dealerHand || game->dealerHand > 21){
-                printf("%s, You won this hand!\n", game->players[i]->name);
+                printf("%s%s%s, You won this hand!\n",game->players[i]->textColor, game->players[i]->name, RESET);
                 game->players[i]->chipCount += game->players[i]->bet;
                 game->players[i]->handTotal = 0;
                 game->players[i]->bet = 0;
                 game->players[i]->winTotal +=1;
             }
             else if(game->players[i]->handTotal == game->dealerHand){
-                printf("%s, you tied!\n", game->players[i]->name);
+                printf("%s%s%s, you tied!\n",game->players[i]->textColor, game->players[i]->name, RESET);
                 game->players[i]->handTotal = 0;
                 game->players[i]->bet = 0;
             }
             else{
-                printf("%s, You lost this hand!\n", game->players[i]->name);
+                printf("%s%s%s, You lost this hand!\n",game->players[i]->textColor, game->players[i]->name, RESET);
                 game->players[i]->chipCount -= game->players[i]->bet;
                 game->players[i]->handTotal = 0;
                 game->players[i]->bet = 0;
@@ -257,15 +260,15 @@ int main(){
         for(int i = 0 ; i < game->numPlayers ; i++){
             if(game->players[i] == NULL) continue;
             if(game->players[i]->chipCount <= 0){
-                printf("%s Lost all chips\nGAME OVER\n",game->players[i]->name);
+                printf("%s%s%s Lost all chips\nGAME OVER\n",game->players[i]->textColor, game->players[i]->name, RESET);
                 savePlayerInfo(game->players[i]);
-                game->numPlayers -= 1;
                 freePlayer(game->players[i]);
                 game->players[i] = NULL;
+                activePlayers--;
             }
 
             else{
-                printf("%s, would you like to cash out?  Please enter 1 (Cash out) or 2 (Stay)\n", game->players[i]->name);
+                printf("%s%s%s, would you like to cash out?  Please enter 1 (Cash out) or 2 (Stay)\n",game->players[i]->textColor, game->players[i]->name, RESET);
                 char *response = playerInput();
                 int decision = atoi(response);
                 free(response);
@@ -274,15 +277,16 @@ int main(){
                     continue;
                 }
                 else if(decision == 1){
-                    printf("%s, Cashing out.....\n", game->players[i]->name);
+                    printf("%s%s%s, Cashing out.....\n",game->players[i]->textColor, game->players[i]->name, RESET);
                     savePlayerInfo(game->players[i]);
-                    game->numPlayers -= 1;
                     freePlayer(game->players[i]);
                     game->players[i] = NULL;
+                    activePlayers--;
                 }
                 else if(decision == 2){
                     continue;
                 }
+                else printf("Invalid input. Try again.\n");
             }
         }
         printf("Shuffling and resetting deck....\n");

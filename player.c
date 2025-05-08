@@ -1,7 +1,7 @@
 
 #include "player.h"
 
-Player* createPlayer(const char *name){
+Player* createPlayer(const char *name, const char *textColor){
     //player pointer
     Player *p = malloc(sizeof(Player));
     if(p == NULL){ 
@@ -10,6 +10,8 @@ Player* createPlayer(const char *name){
     }
     // copy name into Player
     strncpy(p->name, name, MAX_NAME_LENGTH-1);
+    //copy text color
+    strncpy(p->textColor, textColor, MAX_COLOR_LENGTH-1);
     // initial chip count
     p->chipCount = 500;
     //bet amount
@@ -32,7 +34,7 @@ void freePlayer(Player *p){
 }
 
 void printPlayer(const Player *p){
-    printf("Name: %s \nChips: %d \n Hand: %d \n Wins: %d\n", p->name,p->chipCount,p->handTotal,p->winTotal);
+    printf("%sName: %s%s \nChips: %d \n Hand: %d \n Wins: %d\n",p->textColor, p->name, RESET, p->chipCount,p->handTotal,p->winTotal);
 }
 
 void savePlayerInfo(Player *p){
@@ -41,12 +43,9 @@ void savePlayerInfo(Player *p){
 
         // Can't find file
         if (fp == NULL){
-            printf("Could not open file");
+            printf("Could not open file\n");
             exit(1);
         }
-    
-        // make a buffer to hold info
-        char buffer[1024];
 
         //write to Scores File
         fprintf(fp , "Name: %s \nChips: %d \n Hand: %d \n Wins: %d\n\n", p->name,p->chipCount,p->handTotal,p->winTotal);
