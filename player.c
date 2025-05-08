@@ -1,6 +1,6 @@
-
 #include "player.h"
 
+//create players taking name and text color as "constant" parameters
 Player* createPlayer(const char *name, const char *textColor){
     //player pointer
     Player *p = malloc(sizeof(Player));
@@ -19,26 +19,31 @@ Player* createPlayer(const char *name, const char *textColor){
     //hand total and win total initialized at 0 for now
     p->handTotal = 0;
     p->winTotal = 0;
+    //ace count used for math during deals in main function
     p->aceCount = 0;
 
     //return player pointer
     return p;
 }
 
+//returns correct chip total after each hand
 void changeChips(Player *p, int change){
     p->chipCount += change;
 }
 
+//free individual player
 void freePlayer(Player *p){
     free(p);
 }
 
+//print player info for testing purposes
 void printPlayer(const Player *p){
     printf("%sName: %s%s \nChips: %d \n Hand: %d \n Wins: %d\n",p->textColor, p->name, RESET, p->chipCount,p->handTotal,p->winTotal);
 }
 
+//saves player info to Scores.txt
 void savePlayerInfo(Player *p){
-        //open file to write, have pointer look at file
+        //open file to append, have pointer look at file
         FILE *fp = fopen("Scores.txt","a");
 
         // Can't find file

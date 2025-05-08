@@ -1,8 +1,8 @@
 
 #include "table.h"
 
-// add player structs into parameters? 
-/*counter for number of players*/
+
+//create game table, takes count only as parameter which comes from command line input
 Table* createTable(int count){
     Table *game = malloc(sizeof(Table));
     if(game == NULL){
@@ -17,6 +17,7 @@ Table* createTable(int count){
     return game;
 }
 
+//Create deck of cards
 int *createDeck(){
     //create card array
     int *cards = malloc(sizeof(int) * 52);
@@ -35,6 +36,7 @@ int *createDeck(){
     return cards;
 }
 
+//uses rand() to draw randomly from array of 52 cards
 int drawCard(int cards[]){
     //value for saving random number 
     int index;
@@ -53,12 +55,14 @@ int drawCard(int cards[]){
             //returns card
             return value;
         }
+        //counter for draws so you cant draw all 52 cards
         draws++;
     }
     //deck is empty
     return -1;
 }
 
+//"Shuffle" function for new hands
 int *resetDeck(int cards[]){
     if (cards != NULL){
         free(cards);
@@ -72,6 +76,7 @@ int *resetDeck(int cards[]){
     return newDeck;
 }
 
+//frees table and players after game concludes
 void freeTable(Table *aTable){
     //free players
     for(int i = 0 ; i < aTable->numPlayers ; i++){

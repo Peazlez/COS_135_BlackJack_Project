@@ -6,8 +6,9 @@
 
 //if players all bust, dealer starts infinite loop
 //looping through array by incrementing/decrementing pointer
-//read file
+//read file?
 //read.me file
+//github repo?
 
 //function for player input and trimming
 char* playerInput(){
@@ -42,11 +43,13 @@ int main(){
     fprintf(fp, "Game Scores \n\n");
     fclose(fp);
 
+    //Welcome message plus gets player count
     printf("Welcome to the Blackjack Table, how many players?  This table can seat up to 4.\n");
     char *numPlayers = playerInput();
     int count = atoi(numPlayers);
     free(numPlayers);
 
+    //checks that count is valid
     if(count < 1 || count > 4){
         printf("Invalid number of players.  Enter between 1 and 4 players\n");
         return 1;
@@ -102,10 +105,13 @@ int main(){
 
         //placing bets from each player
         for(int i = 0 ; i < game->numPlayers ; i++){
+            //skips freed players in array
             if(game->players[i] ==NULL) continue;
             while(true){
+                //messages with name highlighted with players unique color
                 printf("%sChips: %s%d\n", game->players[i]->textColor,RESET, game->players[i]->chipCount);
                 printf("Bet for this hand, %s%s%s? \n",game->players[i]->textColor, game->players[i]->name, RESET);
+                //player input function call casted to int
                 char *inputBet = playerInput();
                 int bet = atoi(inputBet);
                 free(inputBet);
@@ -127,19 +133,19 @@ int main(){
             }
         }
 
-        //draw first card for dealer
+        //draw first card for dealer (tracking aces)
         int dealerCard = drawCard(Deck);
         game->dealerHand += dealerCard;
         if(dealerCard == 11) game->dealerAces++;
 
-        //draw second card for dealer but hidden till later
+        //draw second card for dealer but hidden till later (tracking aces)
         dealerCard = drawCard(Deck);
         game->secondCard += dealerCard;
         if(dealerCard == 11) game->dealerAces++;
 
         //outer loop twice for each card draw (2 cards per player)
         for(int i = 0 ; i < 2 ; i++){
-            //card draw for each player
+            //card draw for each player (tracking aces)
             for(int k = 0 ; k < game->numPlayers ; k++){
                 if(game->players[k] ==NULL) continue;
                 int newCard = drawCard(Deck);
@@ -157,9 +163,10 @@ int main(){
                 }
             }
         }
-
+        //player bust counter for dealer behavior later
         int playersBust = 0;
 
+        //players hit, stand, or bust here
         for(int i = 0 ; i < game->numPlayers ; i++){
             if(game->players[i] == NULL) continue;
             bool inGame = true;
@@ -183,6 +190,7 @@ int main(){
                     printf("%sInvalid input.  Please enter 1 (Hit) or 2 (Stand).%s\n",game->players[i]->textColor, RESET);
                     continue;
                 }
+                //switch for player choice (hit or stand)
                 switch(choice){
                     case 1:
                         int newCard = drawCard(Deck);
@@ -205,6 +213,7 @@ int main(){
             }
         }
 
+        //edge case where all players bust, dealer auto wins
         if(playersBust >= playersInRound){
             printf("All players Busted.  Dealer Wins automatically.\n\n");
             for(int i = 0 ; i < game->numPlayers ; i++){
@@ -218,6 +227,7 @@ int main(){
                 }
             }
         }
+        //dealer draws as normal if at least one player still in current hand
         else{
             //reveal second card from dealer
             printf("Dealer Hand: %d\n", game->dealerHand);
@@ -231,6 +241,7 @@ int main(){
                     dealerDraw = false;
                     break;
                 }
+                //Switch probably unnecessary here but wanted it in two places for switch requirement
                 switch(game->dealerHand){
                     case 0: 
                     case 1:
@@ -271,12 +282,14 @@ int main(){
                 }
             }
         
+            //show who won/lost this hand and allot chips/reset hand and bet totals
             for(int i = 0 ; i < game->numPlayers ; i++){
                 //skip players that have cashed out
                 if(game->players[i] == NULL) continue;
                 //skip busted players
                 if(game->players[i]->handTotal > 21) continue;
                 
+                //check that players havent busted and have a higher value than dealer (You Win!)
                 if(game->players[i]->handTotal > game->dealerHand || game->dealerHand > 21){
                     printf("%s%s%s, You won this hand!\n",game->players[i]->textColor, game->players[i]->name, RESET);
                     game->players[i]->chipCount += game->players[i]->bet;
@@ -285,12 +298,14 @@ int main(){
                     game->players[i]->bet = 0;
                     game->players[i]->winTotal +=1;
                 }
+                //Players Tie here (Chips remain the same)
                 else if(game->players[i]->handTotal == game->dealerHand){
                     printf("%s%s%s, you tied!\n",game->players[i]->textColor, game->players[i]->name, RESET);
                     printf("%sChip Count: %s%d\n", game->players[i]->textColor, RESET, game->players[i]->chipCount);
                     game->players[i]->handTotal = 0;
                     game->players[i]->bet = 0;
                 }
+                //Players lose (bet chips deducted from chipcount)
                 else{
                     printf("%s%s%s, You lost this hand!\n",game->players[i]->textColor, game->players[i]->name, RESET);
                     game->players[i]->chipCount -= game->players[i]->bet;
@@ -300,16 +315,19 @@ int main(){
                 }
             }
         }
+        //Checks for players with 0 chips left (Game Over)
         for(int i = 0 ; i < game->numPlayers ; i++){
             if(game->players[i] == NULL) continue;
             if(game->players[i]->chipCount <= 0){
                 printf("%s%s%s Lost all chips\nGAME OVER\n\n",game->players[i]->textColor, game->players[i]->name, RESET);
+                //call save player function to write final scores
                 savePlayerInfo(game->players[i]);
                 freePlayer(game->players[i]);
                 game->players[i] = NULL;
                 activePlayers--;
             }
 
+            //cashout or stay?
             else{
                 printf("%s%s%s, would you like to cash out?  Please enter 1 (Cash out) or 2 (Stay)\n",game->players[i]->textColor, game->players[i]->name, RESET);
                 char *response = playerInput();
@@ -319,6 +337,7 @@ int main(){
                     printf("Invalid input.  Please enter 1 (Cash out) or 2 (Stay).\n");
                     continue;
                 }
+                //cashout choice writes player info to scores.txt and frees them
                 else if(decision == 1){
                     printf("%s%s%s, Cashing out.....\n",game->players[i]->textColor, game->players[i]->name, RESET);
                     savePlayerInfo(game->players[i]);
@@ -326,12 +345,14 @@ int main(){
                     game->players[i] = NULL;
                     activePlayers--;
                 }
+                //continue playing
                 else if(decision == 2){
                     continue;
                 }
                 else printf("Invalid input. Try again.\n");
             }
         }
+        //reset deck for next hand
         printf("Shuffling and resetting deck....\n");
         Deck = resetDeck(Deck);
 
@@ -345,6 +366,7 @@ int main(){
 
     printf("Final Results in Scores.txt\n");
 
+    //free deck and game
     free(Deck);
     free(game);
 }

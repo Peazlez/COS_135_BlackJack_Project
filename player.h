@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+//Player struct thats added to table struct
 typedef struct Player{
     char name[MAX_NAME_LENGTH];
     int chipCount;

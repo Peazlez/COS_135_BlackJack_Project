@@ -6,9 +6,11 @@
 
 #define START_CHIPS 500
 #define MAX_PLAYERS 4
+
 //color text for dealer
 #define BLK "\e[0;30m"
 
+//game table struct
 typedef struct Table{
     int numPlayers;
     Player** players;
@@ -17,10 +19,10 @@ typedef struct Table{
     int dealerAces;
 }Table;
 
-//Create table (add parameters)
+//Create table
 Table* createTable(int count);
 
-// Create deck of 52 cards (return array or structs array?)
+// Create deck of 52 cards
 int *createDeck();
 
 //draws card from 52 int value array
