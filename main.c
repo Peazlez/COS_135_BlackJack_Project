@@ -368,5 +368,5 @@ int main(){
 
     //free deck and game
     free(Deck);
-    free(game);
+    freeTable(game);
 }
